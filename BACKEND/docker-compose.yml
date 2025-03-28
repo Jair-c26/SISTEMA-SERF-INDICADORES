@@ -1,0 +1,218 @@
+services:
+
+    nginx:
+        image: nginx:latest
+        container_name: sail-nginx
+        ports:
+            - "80:80"  # Exponer Nginx en el puerto 80
+        volumes:
+            - .:/var/www/html  # Mapea el directorio actual al contenedor Nginx
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf  # Configuración de Nginx
+        depends_on:
+            - laravel.test  # Nginx depende de Laravel
+        networks:
+            - sail
+        deploy:
+            resources:
+                limits:
+                    memory: 2G  # Limitar a 1 GB de memoria máxima
+                reservations:
+                    memory: 1G  # Reservar 512 MB de memoria para este contenedor
+    php:
+        container_name: php-fpm
+        image: php:8.3-fpm  # Usa una imagen oficial de PHP-FPM
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+        #command: bash -c "apt-get update && apt-get install -y libzip-dev libpng-dev libjpeg-dev libfreetype6-dev && docker-php-ext-configure gd --with-freetype --with-jpeg && docker-php-ext-install zip gd pdo pdo_mysql && php-fpm"  # Instalar dependencias y correr php-fpm
+        command: bash -c "apt-get update && apt-get install -y libzip-dev libpng-dev libjpeg-dev libfreetype6-dev && docker-php-ext-configure gd --with-freetype --with-jpeg && docker-php-ext-install zip gd pdo pdo_mysql && php-fpm -d max_execution_time=100 -d max_input_time=100"
+        volumes:
+            - .:/var/www/html #originales
+            - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini # Montar archivo de configuración personalizada
+            - ./docker/php/custom-php.ini:/usr/local/etc/php/conf.d/custom-php.ini  # Monta tu php.ini personalizado
+
+        networks:
+            - sail
+        deploy:
+            resources:
+                limits:
+                    memory: 4G  # Limitar a 2 GB de memoria máxima
+                reservations:
+                    memory: 2G  # Reservar 1 GB de memoria para este contenedor
+
+    laravel.test:
+        container_name: laravel.test  # Agregar este nombre fijo
+        build:
+            context: './vendor/laravel/sail/runtimes/8.3'
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: 'sail-8.3/app'
+        user: "root" # Esta línea fuerza el contenedor a ejecutarse como root
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            #- '${APP_PORT:-80}:80'
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - mysql
+            - redis
+            - meilisearch
+            - mailpit
+            - selenium
+            - nodejs
+    mysql:
+        image: 'mysql/mysql-server:8.0'
+        ports:
+            - '${FORWARD_DB_PORT:-3306}:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_HOST: '%'
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            #MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        volumes:
+            #- './mysql/data:/var/lib/mysql'  # Guarda la base de datos en la carpeta mysql/data dentro del proyecto
+            #- './mysql/config:/etc/mysql/conf.d'  # Opcional: Guarda configuraciones personalizadas
+            #- './vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+            - 'sail-mysql:/var/lib/mysql'
+            - './vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+        networks:
+            - sail
+        deploy:
+            resources:
+                limits:
+                    memory: 2G
+                reservations:
+                    memory: 1G
+        healthcheck:
+            test:
+                - CMD
+                - mysqladmin
+                - ping
+                - '-p${DB_PASSWORD}'
+            retries: 3
+            timeout: 5s
+    redis:
+        image: 'redis:alpine'
+        ports:
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        volumes:
+            - 'sail-redis:/data'
+        networks:
+            - sail
+        healthcheck:
+            test:
+                - CMD
+                - redis-cli
+                - ping
+            retries: 3
+            timeout: 5s
+    meilisearch:
+        image: 'getmeili/meilisearch:latest'
+        ports:
+            - '${FORWARD_MEILISEARCH_PORT:-7700}:7700'
+        environment:
+            MEILI_NO_ANALYTICS: '${MEILISEARCH_NO_ANALYTICS:-false}'
+        volumes:
+            - 'sail-meilisearch:/meili_data'
+        networks:
+            - sail
+        healthcheck:
+            test:
+                - CMD
+                - wget
+                - '--no-verbose'
+                - '--spider'
+                - 'http://127.0.0.1:7700/health'
+            retries: 3
+            timeout: 5s
+    mailpit:
+        image: 'axllent/mailpit:latest'
+        ports:
+            - '${FORWARD_MAILPIT_PORT:-1025}:1025'
+            - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
+        networks:
+            - sail
+    selenium:
+        image: selenium/standalone-chromium
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        volumes:
+            - '/dev/shm:/dev/shm'
+        networks:
+            - sail
+    # Servicio Node.js
+    nodejs:
+        image: node:20
+        container_name: nodejs_service
+        working_dir: /usr/src/app
+        volumes:
+            - ./nodejs:/usr/src/app
+        ports:
+            - "4000:4000" # Puerto expuesto para acceso local
+        command: bash -c "npm install && npm run dev" # Comando inicial para el servicio
+        networks:
+            - sail
+        depends_on:
+            - mysql
+            - redis
+    
+    # Servicio MinIO
+    
+    minio:
+        image: minio/minio:latest
+        container_name: minio
+        environment:
+            MINIO_ROOT_USER: 'minioadmin' # Usuario root
+            MINIO_ROOT_PASSWORD: 'minioadmin' # Contraseña root
+        ports:
+            - "9000:9000" # Puerto para la API de MinIO
+            - "9001:9001" # Puerto para la consola web de MinIO
+        volumes:
+            #- "/mnt/c/Users/USER/Desktop/fiscalia/minio_data:/data"
+            - ./minio_data:/data          # Bind mount: carpeta local ./minio_data se monta en /data
+            - ./minio_config:/root/.minio # Bind mount para la configuración
+        command: server /data --console-address ":9001" # Iniciar el servidor con consola web
+        networks:
+            - sail # Usar la misma red que los demás servicios
+    
+    python:
+        image: python:3.11  # Usa la versión que necesites
+        container_name: python_service
+        working_dir: /usr/src/app
+        volumes:
+            - ./python:/usr/src/app  # Mapea la carpeta local "python" al contenedor
+        command: bash -c "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 5000 --reload"
+        ports:
+            - "5000:5000"  # Puerto para la API en FastAPI
+        networks:
+            - sail
+        depends_on:
+            - mysql
+
+networks:
+    sail:
+        driver: bridge
+volumes:
+    sail-mysql:
+        driver: local
+    sail-redis:
+        driver: local
+    sail-meilisearch:
+        driver: local
+    sail-minio-data: # Volumen para almacenar los datos de MinIO
+        driver: local
+    sail-minio-config: # Volumen para almacenar la configuración de MinIO
+        driver: local

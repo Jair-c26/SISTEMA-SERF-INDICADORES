@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer components{
+    .card-tramite {
+        @apply bg-[#152B52] text-white text-xs font-medium rounded-lg p-5
+    }
+}
+
+
+.css-23htwk{
+    background: rgb(245 245 244);
+}
+
+
+
+.css-1je49cu-MuiTypography-root {
+    display: none;
+    
+}
+
+
+.css-1blp12k-MuiInputBase-root-MuiOutlinedInput-root {
+    border-radius: 10px;
+}
+
+
+.css-16mfwdg-MuiFormControl-root {
+    margin-top: 2px;
+}
+
+.css-yzjoij {
+    position: relative;
+    height: 40px;
+    top: 6px;
+}
+
+.css-1d0hfx0-MuiButtonBase-root-MuiIconButton-root {
+    display: -webkit-inline-box;
+    display: -webkit-inline-flex;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -webkit-align-items: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    position: relative;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    background-color: transparent;
+    outline: 0;
+    border: 0;
+    margin: 0;
+    border-radius: 0;
+    padding: 0;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    vertical-align: middle;
+   
+    -webkit-text-decoration: none;
+    text-decoration: none;
+    color: inherit;
+    text-align: center;
+    -webkit-flex: 0 0 auto;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    font-size: 1.5rem;
+    padding: 8px;
+    border-radius: 50%;
+    color: var(--mui-palette-action-active);
+    -webkit-transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    --IconButton-hoverBg: rgba(var(--mui-palette-action-activeChannel) / var(--mui-palette-action-hoverOpacity));
+    top: 6px;
+}
+
+.MuiAppBar-root {
+    background-color: #152B52 !important;
+}
+
+/* Cambiar el color de la barra lateral */
+.MuiDrawer-root .css-1a2ef5c{
+    background-color: #152B52 !important;
+    color: #fff;
+} 
+
+.MuiBox-root .css-jrtdnu{
+    background-color: #152B52 !important;
+}
+
+.css-mk1z4a-MuiButtonBase-root-MuiListItemButton-root.Mui-selected .MuiTypography-root{
+    color: #fff !important;
+}
+
+.MuiSvgIcon-root .MuiSvgIcon-fontSizeMedium .css-4uxqju-MuiSvgIcon-root{
+    color: #fff !important;
+}
+
+
+
+
+.css-mk1z4a-MuiButtonBase-root-MuiListItemButton-root.Mui-selected .MuiSvgIcon-root {
+    color: #1565c0 !important; /* Cambiar primary-dark */
+}
+
+.css-mk1z4a-MuiButtonBase-root-MuiListItemButton-root .MuiSvgIcon-root {
+    color: #fff !important; /* Cambiar action-active */
+}
+
+
+.css-4uxqju-MuiSvgIcon-root{
+    color:#fff;
+}
+

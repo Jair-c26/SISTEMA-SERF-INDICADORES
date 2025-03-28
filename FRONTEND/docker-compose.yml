@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app         # Monta el directorio del proyecto en el contenedor
+      - /app/node_modules  # Evita que el directorio node_modules local se monte
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # Mejora la detección de cambios en algunos entornos Windows

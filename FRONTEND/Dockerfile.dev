@@ -1,0 +1,17 @@
+# Dockerfile.dev
+FROM node:16-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+# Configura la variable de entorno para que Vite escuche en todas las interfaces
+ENV HOST=0.0.0.0
+
+# Inicia Vite en el puerto 3000 y exponiendo la interfaz externa
+CMD ["npm", "run", "dev", "--", "--port", "3000", "--host"]

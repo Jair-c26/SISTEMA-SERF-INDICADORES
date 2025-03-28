@@ -1,0 +1,44 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "start": "node generateGraph.js",
+        "build": "vite build",
+        "dev": "vite"
+    },
+    "devDependencies": {
+        "autoprefixer": "^10.4.20",
+        "axios": "^1.7.4",
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^1.0",
+        "postcss": "^8.4.47",
+        "tailwindcss": "^3.4.13",
+        "vite": "^5.0"
+    },
+    "dependencies": {
+        "canvas": "^3.1.0",
+        "chart.js": "^3.9.1",
+        "chartjs-node-canvas": "^4.1.6",
+        "echarts": "^5.6.0",
+        "express": "^4.21.2",
+        "puppeteer": "^24.1.1"
+    },
+    "name": "html",
+    "version": "1.0.0",
+    "description": "<p align=\"center\"><a href=\"https://laravel.com\" target=\"_blank\"><img src=\"https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg\" width=\"400\" alt=\"Laravel Logo\"></a></p>",
+    "main": "postcss.config.js",
+    "directories": {
+        "test": "tests"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jairC22/fiscaliaIndicadores.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/jairC22/fiscaliaIndicadores/issues"
+    },
+    "homepage": "https://github.com/jairC22/fiscaliaIndicadores#readme"
+}
